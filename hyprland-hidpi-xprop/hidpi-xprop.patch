@@ -1,16 +1,8 @@
 diff --git a/src/desktop/Window.cpp b/src/desktop/Window.cpp
-index 78f12a11..6719dd4b 100644
+index 78f12a11..af34a26b 100644
 --- a/src/desktop/Window.cpp
 +++ b/src/desktop/Window.cpp
-@@ -16,6 +16,7 @@
- #include "../managers/TokenManager.hpp"
- #include "../managers/animation/AnimationManager.hpp"
- #include "../managers/ANRManager.hpp"
-+#include "../protocols/XDGOutput.hpp"
- #include "../protocols/XDGShell.hpp"
- #include "../protocols/core/Compositor.hpp"
- #include "../protocols/core/Subcompositor.hpp"
-@@ -1777,10 +1778,13 @@ Vector2D CWindow::xwaylandPositionToReal(Vector2D pos) {
+@@ -1777,10 +1777,13 @@ Vector2D CWindow::xwaylandPositionToReal(Vector2D pos) {
  void CWindow::updateX11SurfaceScale() {
      static auto PXWLFORCESCALEZERO = CConfigValue<Hyprlang::INT>("xwayland:force_zero_scaling");
  
@@ -28,7 +20,7 @@ index 78f12a11..6719dd4b 100644
      }
  }
  
-@@ -1909,4 +1913,4 @@ SP<CWLSurfaceResource> CWindow::getSolitaryResource() {
+@@ -1909,4 +1912,4 @@ SP<CWLSurfaceResource> CWindow::getSolitaryResource() {
      }
  
      return nullptr;

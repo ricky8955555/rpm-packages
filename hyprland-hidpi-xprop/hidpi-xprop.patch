@@ -1,5 +1,5 @@
 diff --git a/src/desktop/Window.cpp b/src/desktop/Window.cpp
-index 78f12a11..af34a26b 100644
+index 71b78ded..685dabf8 100644
 --- a/src/desktop/Window.cpp
 +++ b/src/desktop/Window.cpp
 @@ -1777,10 +1777,13 @@ Vector2D CWindow::xwaylandPositionToReal(Vector2D pos) {
@@ -20,13 +20,6 @@ index 78f12a11..af34a26b 100644
      }
  }
  
-@@ -1909,4 +1912,4 @@ SP<CWLSurfaceResource> CWindow::getSolitaryResource() {
-     }
- 
-     return nullptr;
--}
-\ No newline at end of file
-+}
 diff --git a/src/protocols/XDGOutput.cpp b/src/protocols/XDGOutput.cpp
 index ccb78e98..1c2a9fbd 100644
 --- a/src/protocols/XDGOutput.cpp

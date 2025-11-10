@@ -1,5 +1,5 @@
 Name:           hyprland-hidpi-xprop
-Version:        0.51.1
+Version:        0.52.1
 Release:        %autorelease
 Summary:        Dynamic tiling Wayland compositor that doesn't sacrifice on its looks, with Hi-DPI scale patches.
 

@@ -17,7 +17,8 @@ Summary:        Dynamic tiling Wayland compositor that doesn't sacrifice on its 
 License:        BSD-3-Clause AND BSD-2-Clause AND LGPL-2.1-or-later AND HPND-sell-variant
 URL:            https://github.com/hyprwm/Hyprland
 Source:         %{url}/releases/download/v%{version}/source-v%{version}.tar.gz
-Patch:          hidpi-xprop.patch
+Patch0:         hidpi-xprop.patch
+Patch1:         fix-version-install-location.patch
 
 # https://fedoraproject.org/wiki/Changes/EncourageI686LeafRemoval
 ExcludeArch:    %{ix86}

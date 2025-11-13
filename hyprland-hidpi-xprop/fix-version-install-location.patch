@@ -1,0 +1,12 @@
+diff --git a/meson.build b/meson.build
+index c7819e80..718f15c5 100644
+--- a/meson.build
++++ b/meson.build
+@@ -123,7 +123,6 @@ headers = globber.stdout().strip().split('\n')
+ foreach file : headers
+   install_headers(file, subdir: 'hyprland', preserve_path: true)
+ endforeach
+-install_headers(version_h, subdir: 'src')
+ 
+ tracy = dependency('tracy', static: true, required: get_option('tracy_enable'))
+ if get_option('tracy_enable') and get_option('buildtype') != 'debugoptimized'

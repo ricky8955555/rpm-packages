@@ -1,5 +1,5 @@
 Name:           hyprland-hidpi-xprop
-Version:        0.52.2
+Version:        0.53.1
 Release:        %autorelease
 Summary:        Dynamic tiling Wayland compositor that doesn't sacrifice on its looks, with Hi-DPI scale patches.
 
@@ -17,16 +17,15 @@ Summary:        Dynamic tiling Wayland compositor that doesn't sacrifice on its 
 License:        BSD-3-Clause AND BSD-2-Clause AND LGPL-2.1-or-later AND HPND-sell-variant
 URL:            https://github.com/hyprwm/Hyprland
 Source:         %{url}/releases/download/v%{version}/source-v%{version}.tar.gz
-Patch0:         hidpi-xprop.patch
-Patch1:         fix-version-install-location.patch
+Patch:          hidpi-xprop.patch
 
 # https://fedoraproject.org/wiki/Changes/EncourageI686LeafRemoval
 ExcludeArch:    %{ix86}
 
 BuildRequires:  cmake
 BuildRequires:  gcc-c++
-BuildRequires:  glaze-static
-BuildRequires:  meson
+BuildRequires:  glaze-static < 7.0.0
+BuildRequires:  muParser-devel
 
 BuildRequires:  pkgconfig(aquamarine)
 BuildRequires:  pkgconfig(cairo)
@@ -41,6 +40,7 @@ BuildRequires:  pkgconfig(hyprland-protocols)
 BuildRequires:  pkgconfig(hyprlang)
 BuildRequires:  pkgconfig(hyprutils)
 BuildRequires:  pkgconfig(hyprwayland-scanner)
+BuildRequires:  pkgconfig(hyprwire)
 BuildRequires:  pkgconfig(libdisplay-info)
 BuildRequires:  pkgconfig(libdrm)
 BuildRequires:  pkgconfig(libinput)
@@ -81,11 +81,11 @@ BuildRequires:  pkgconfig(xwayland)
 Provides:       bundled(udis86) = 1.7.2^1.git5336633
 
 Requires:       xorg-x11-server-Xwayland%{?_isa}
-Requires:       xdg-desktop-portal%{?_isa}
-Requires:       aquamarine%{?_isa} >= 0.8.0
-Requires:       hyprcursor%{?_isa} >= 0.1.9
-Requires:       hyprutils%{?_isa} >= 0.7.0
-Requires:       hyprgraphics%{?_isa} >= 0.1.3
+Requires:       aquamarine%{?_isa} >= 0.9.2
+Requires:       hyprcursor%{?_isa} >= 0.1.13
+Requires:       hyprgraphics%{?_isa} >= 0.1.6
+Requires:       hyprlang%{?_isa} >= 0.6.3
+Requires:       hyprutils%{?_isa} >= 0.8.4
 
 # Used in the default configuration
 Recommends:     kitty
@@ -122,7 +122,7 @@ Requires:       cmake
 Requires:       cpio
 Requires:       gcc-c++
 Requires:       glaze-static
-Requires:       meson
+Requires:       muParser-devel
 Requires:       ninja-build
 Requires:       pkgconfig(aquamarine)
 Requires:       pkgconfig(cairo)
@@ -136,6 +136,7 @@ Requires:       pkgconfig(hyprgraphics)
 Requires:       pkgconfig(hyprlang)
 Requires:       pkgconfig(hyprutils)
 Requires:       pkgconfig(hyprwayland-scanner)
+Requires:       pkgconfig(hyprwire)
 Requires:       pkgconfig(libdisplay-info)
 Requires:       pkgconfig(libdrm)
 Requires:       pkgconfig(libinput)
@@ -178,19 +179,16 @@ Recommends:     git-core
 %prep
 %autosetup -n hyprland-source -p1
 rm -rf subprojects/{tracy,hyprland-protocols}
-# don't run generateVersion.sh, release tarballs have pregenerated version.h
-sed -i '/scripts\/generateVersion.sh/d' meson.build
  
 cp -p subprojects/udis86/LICENSE LICENSE-udis86
 
 
 %build
-%meson
-%meson_build
-
+%cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DNO_TESTS=TRUE -DBUILD_TESTING=FALSE
+%cmake_build
 
 %install
-%meson_install
+%cmake_install
 
 
 %files
@@ -198,6 +196,7 @@ cp -p subprojects/udis86/LICENSE LICENSE-udis86
 %{_bindir}/hyprctl
 %{_bindir}/[Hh]yprland
 %{_bindir}/hyprpm
+%{_bindir}/start-hyprland
 %{_datadir}/hypr/
 %{_datadir}/wayland-sessions/hyprland.desktop
 %{_datadir}/xdg-desktop-portal/hyprland-portals.conf

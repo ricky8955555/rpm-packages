@@ -1,8 +1,8 @@
-diff --git a/src/desktop/Window.cpp b/src/desktop/Window.cpp
-index fbf63243..71a2eda1 100644
---- a/src/desktop/Window.cpp
-+++ b/src/desktop/Window.cpp
-@@ -1805,10 +1805,13 @@ Vector2D CWindow::xwaylandPositionToReal(Vector2D pos) {
+diff --git a/src/desktop/view/Window.cpp b/src/desktop/view/Window.cpp
+index a22f4a9d..2b425b7e 100644
+--- a/src/desktop/view/Window.cpp
++++ b/src/desktop/view/Window.cpp
+@@ -1617,10 +1617,13 @@ Vector2D CWindow::xwaylandPositionToReal(Vector2D pos) {
  void CWindow::updateX11SurfaceScale() {
      static auto PXWLFORCESCALEZERO = CConfigValue<Hyprlang::INT>("xwayland:force_zero_scaling");
  
@@ -21,7 +21,7 @@ index fbf63243..71a2eda1 100644
  }
  
 diff --git a/src/protocols/XDGOutput.cpp b/src/protocols/XDGOutput.cpp
-index ccb78e98..1c2a9fbd 100644
+index 8835d4b5..76a9fc92 100644
 --- a/src/protocols/XDGOutput.cpp
 +++ b/src/protocols/XDGOutput.cpp
 @@ -110,11 +110,15 @@ void CXDGOutput::sendDetails() {
@@ -44,7 +44,7 @@ index ccb78e98..1c2a9fbd 100644
          m_resource->sendLogicalSize(m_monitor->m_size.x, m_monitor->m_size.y);
  
 diff --git a/src/xwayland/XSurface.cpp b/src/xwayland/XSurface.cpp
-index 73c512f2..ed1f00b0 100644
+index bc74f54d..a59cf210 100644
 --- a/src/xwayland/XSurface.cpp
 +++ b/src/xwayland/XSurface.cpp
 @@ -168,7 +168,8 @@ void CXWaylandSurface::configure(const CBox& box) {
@@ -73,18 +73,18 @@ index 73c512f2..ed1f00b0 100644
          e.above_sibling     = XCB_NONE;
          e.override_redirect = m_overrideRedirect;
 diff --git a/src/xwayland/XWM.cpp b/src/xwayland/XWM.cpp
-index 9abd955a..e8bb2dcf 100644
+index 4e7fc5be..57fde17c 100644
 --- a/src/xwayland/XWM.cpp
 +++ b/src/xwayland/XWM.cpp
-@@ -18,6 +18,7 @@
- #include "../managers/eventLoop/EventLoopManager.hpp"
+@@ -19,6 +19,7 @@
  #include "../managers/SeatManager.hpp"
  #include "../managers/ANRManager.hpp"
+ #include "../helpers/env/Env.hpp"
 +#include "../protocols/XDGOutput.hpp"
  #include "../protocols/XWaylandShell.hpp"
  #include "../protocols/core/Compositor.hpp"
- using Hyprutils::Memory::CUniquePointer;
-@@ -53,8 +54,9 @@ void CXWM::handleCreate(xcb_create_notify_event_t* e) {
+ #include "../desktop/state/FocusState.hpp"
+@@ -55,8 +56,9 @@ void CXWM::handleCreate(xcb_create_notify_event_t* e) {
      if (isWMWindow(e->window))
          return;
  
@@ -93,10 +93,10 @@ index 9abd955a..e8bb2dcf 100644
 +    const auto XSURF = m_surfaces.emplace_back(
 +        SP<CXWaylandSurface>(new CXWaylandSurface(e->window, CBox{applyUnScale(e->x), applyUnScale(e->y), applyUnScale(e->width), applyUnScale(e->height)}, e->override_redirect)));
 +    XSURF->m_self = XSURF;
-     Debug::log(LOG, "[xwm] New XSurface at {:x} with xid of {}", rc<uintptr_t>(XSURF.get()), e->window);
+     Log::logger->log(Log::DEBUG, "[xwm] New XSurface at {:x} with xid of {}", rc<uintptr_t>(XSURF.get()), e->window);
  
-     const auto WINDOW = CWindow::create(XSURF);
-@@ -84,9 +86,9 @@ void CXWM::handleConfigureRequest(xcb_configure_request_event_t* e) {
+     const auto WINDOW = Desktop::View::CWindow::create(XSURF);
+@@ -86,9 +88,9 @@ void CXWM::handleConfigureRequest(xcb_configure_request_event_t* e) {
      if (!(MASK & GEOMETRY))
          return;
  
@@ -109,7 +109,7 @@ index 9abd955a..e8bb2dcf 100644
  }
  
  void CXWM::handleConfigureNotify(xcb_configure_notify_event_t* e) {
-@@ -95,10 +97,11 @@ void CXWM::handleConfigureNotify(xcb_configure_notify_event_t* e) {
+@@ -97,10 +99,11 @@ void CXWM::handleConfigureNotify(xcb_configure_notify_event_t* e) {
      if (!XSURF)
          return;
  
@@ -123,7 +123,7 @@ index 9abd955a..e8bb2dcf 100644
      updateOverrideRedirect(XSURF, e->override_redirect);
      XSURF->m_events.setGeometry.emit();
  }
-@@ -284,6 +287,17 @@ void CXWM::readProp(SP<CXWaylandSurface> XSURF, uint32_t atom, xcb_get_property_
+@@ -286,6 +289,17 @@ void CXWM::readProp(SP<CXWaylandSurface> XSURF, uint32_t atom, xcb_get_property_
          std::memset(XSURF->m_sizeHints.get(), 0, sizeof(xcb_size_hints_t));
          xcb_icccm_get_wm_size_hints_from_reply(XSURF->m_sizeHints.get(), reply);
  
@@ -141,7 +141,7 @@ index 9abd955a..e8bb2dcf 100644
          const int32_t FLAGS   = XSURF->m_sizeHints->flags;
          const bool    HASMIN  = FLAGS & XCB_ICCCM_SIZE_HINT_P_MIN_SIZE;
          const bool    HASBASE = FLAGS & XCB_ICCCM_SIZE_HINT_BASE_SIZE;
-@@ -339,8 +353,21 @@ void CXWM::readProp(SP<CXWaylandSurface> XSURF, uint32_t atom, xcb_get_property_
+@@ -341,8 +355,21 @@ void CXWM::readProp(SP<CXWaylandSurface> XSURF, uint32_t atom, xcb_get_property_
  void CXWM::handlePropertyNotify(xcb_property_notify_event_t* e) {
      const auto XSURF = windowForXID(e->window);
  
@@ -164,7 +164,7 @@ index 9abd955a..e8bb2dcf 100644
  
      xcb_get_property_cookie_t             cookie = xcb_get_property(getConnection(), 0, XSURF->m_xID, e->atom, XCB_ATOM_ANY, 0, 2048);
      XCBReplyPtr<xcb_get_property_reply_t> reply(xcb_get_property_reply(getConnection(), cookie, nullptr));
-@@ -1388,6 +1415,18 @@ SP<IDataOffer> CXWM::createX11DataOffer(SP<CWLSurfaceResource> surf, SP<IDataSou
+@@ -1390,6 +1417,18 @@ SP<IDataOffer> CXWM::createX11DataOffer(SP<CWLSurfaceResource> surf, SP<IDataSou
      return offer;
  }
  
@@ -184,7 +184,7 @@ index 9abd955a..e8bb2dcf 100644
      const bool isClipboard = this == &g_pXWayland->m_wm->m_clipboard;
      const bool isPrimary   = this == &g_pXWayland->m_wm->m_primarySelection;
 diff --git a/src/xwayland/XWM.hpp b/src/xwayland/XWM.hpp
-index b328a2c9..2a6dd123 100644
+index 1a922a45..867175bf 100644
 --- a/src/xwayland/XWM.hpp
 +++ b/src/xwayland/XWM.hpp
 @@ -119,6 +119,7 @@ class CXWM {

@@ -25,7 +25,7 @@ ExcludeArch:    %{ix86}
 BuildRequires:  cmake
 BuildRequires:  gcc-c++
 BuildRequires:  ninja-build
-BuildRequires:  glaze-static < 7.0.0
+BuildRequires:  glaze-static
 BuildRequires:  muParser-devel
 
 BuildRequires:  pkgconfig(aquamarine)

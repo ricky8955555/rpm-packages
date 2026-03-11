@@ -1,5 +1,5 @@
 Name:           hyprland-hidpi-xprop
-Version:        0.53.3
+Version:        0.54.2
 Release:        %autorelease
 Summary:        Dynamic tiling Wayland compositor that doesn't sacrifice on its looks, with Hi-DPI scale patches.
 
@@ -34,6 +34,7 @@ BuildRequires:  pkgconfig(egl)
 BuildRequires:  pkgconfig(gbm)
 BuildRequires:  pkgconfig(gio-2.0)
 BuildRequires:  pkgconfig(glesv2)
+BuildRequires:  pkgconfig(glslang)
 BuildRequires:  pkgconfig(hwdata)
 BuildRequires:  pkgconfig(hyprcursor)
 BuildRequires:  pkgconfig(hyprgraphics)
@@ -42,6 +43,7 @@ BuildRequires:  pkgconfig(hyprlang)
 BuildRequires:  pkgconfig(hyprutils)
 BuildRequires:  pkgconfig(hyprwayland-scanner)
 BuildRequires:  pkgconfig(hyprwire)
+BuildRequires:  pkgconfig(lcms2)
 BuildRequires:  pkgconfig(libdisplay-info)
 BuildRequires:  pkgconfig(libdrm)
 BuildRequires:  pkgconfig(libinput)
@@ -131,6 +133,7 @@ Requires:       pkgconfig(egl)
 Requires:       pkgconfig(gbm)
 Requires:       pkgconfig(gio-2.0)
 Requires:       pkgconfig(glesv2)
+Requires:       pkgconfig(glslang)
 Requires:       pkgconfig(hwdata)
 Requires:       pkgconfig(hyprcursor)
 Requires:       pkgconfig(hyprgraphics)
@@ -138,6 +141,7 @@ Requires:       pkgconfig(hyprlang)
 Requires:       pkgconfig(hyprutils)
 Requires:       pkgconfig(hyprwayland-scanner)
 Requires:       pkgconfig(hyprwire)
+Requires:       pkgconfig(lcms2)
 Requires:       pkgconfig(libdisplay-info)
 Requires:       pkgconfig(libdrm)
 Requires:       pkgconfig(libinput)

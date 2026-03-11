@@ -1,8 +1,8 @@
 diff --git a/src/desktop/view/Window.cpp b/src/desktop/view/Window.cpp
-index a22f4a9d..2b425b7e 100644
+index abf4da95..0f800cf0 100644
 --- a/src/desktop/view/Window.cpp
 +++ b/src/desktop/view/Window.cpp
-@@ -1617,10 +1617,13 @@ Vector2D CWindow::xwaylandPositionToReal(Vector2D pos) {
+@@ -1368,10 +1368,13 @@ Vector2D CWindow::xwaylandPositionToReal(Vector2D pos) {
  void CWindow::updateX11SurfaceScale() {
      static auto PXWLFORCESCALEZERO = CConfigValue<Hyprlang::INT>("xwayland:force_zero_scaling");
  
@@ -21,7 +21,7 @@ index a22f4a9d..2b425b7e 100644
  }
  
 diff --git a/src/protocols/XDGOutput.cpp b/src/protocols/XDGOutput.cpp
-index 8835d4b5..76a9fc92 100644
+index 3553a74b..ec738da4 100644
 --- a/src/protocols/XDGOutput.cpp
 +++ b/src/protocols/XDGOutput.cpp
 @@ -110,11 +110,15 @@ void CXDGOutput::sendDetails() {
@@ -44,10 +44,10 @@ index 8835d4b5..76a9fc92 100644
          m_resource->sendLogicalSize(m_monitor->m_size.x, m_monitor->m_size.y);
  
 diff --git a/src/xwayland/XSurface.cpp b/src/xwayland/XSurface.cpp
-index bc74f54d..a59cf210 100644
+index 5c5f3b5c..2b32dfa1 100644
 --- a/src/xwayland/XSurface.cpp
 +++ b/src/xwayland/XSurface.cpp
-@@ -168,7 +168,8 @@ void CXWaylandSurface::configure(const CBox& box) {
+@@ -200,7 +200,8 @@ void CXWaylandSurface::configure(const CBox& box) {
      m_geometry = box;
  
      uint32_t mask     = XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y | XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT | XCB_CONFIG_WINDOW_BORDER_WIDTH;
@@ -57,7 +57,7 @@ index bc74f54d..a59cf210 100644
      xcb_configure_window(g_pXWayland->m_wm->getConnection(), m_xID, mask, values);
  
      if (m_geometry.width == box.width && m_geometry.height == box.height) {
-@@ -177,10 +178,10 @@ void CXWaylandSurface::configure(const CBox& box) {
+@@ -209,10 +210,10 @@ void CXWaylandSurface::configure(const CBox& box) {
          e.response_type     = XCB_CONFIGURE_NOTIFY;
          e.event             = m_xID;
          e.window            = m_xID;
@@ -73,7 +73,7 @@ index bc74f54d..a59cf210 100644
          e.above_sibling     = XCB_NONE;
          e.override_redirect = m_overrideRedirect;
 diff --git a/src/xwayland/XWM.cpp b/src/xwayland/XWM.cpp
-index 4e7fc5be..57fde17c 100644
+index 7e20d9b1..ab7e772e 100644
 --- a/src/xwayland/XWM.cpp
 +++ b/src/xwayland/XWM.cpp
 @@ -19,6 +19,7 @@
@@ -84,7 +84,7 @@ index 4e7fc5be..57fde17c 100644
  #include "../protocols/XWaylandShell.hpp"
  #include "../protocols/core/Compositor.hpp"
  #include "../desktop/state/FocusState.hpp"
-@@ -55,8 +56,9 @@ void CXWM::handleCreate(xcb_create_notify_event_t* e) {
+@@ -57,8 +58,9 @@ void CXWM::handleCreate(xcb_create_notify_event_t* e) {
      if (isWMWindow(e->window))
          return;
  
@@ -96,7 +96,7 @@ index 4e7fc5be..57fde17c 100644
      Log::logger->log(Log::DEBUG, "[xwm] New XSurface at {:x} with xid of {}", rc<uintptr_t>(XSURF.get()), e->window);
  
      const auto WINDOW = Desktop::View::CWindow::create(XSURF);
-@@ -86,9 +88,9 @@ void CXWM::handleConfigureRequest(xcb_configure_request_event_t* e) {
+@@ -90,9 +92,9 @@ void CXWM::handleConfigureRequest(xcb_configure_request_event_t* e) {
      if (!(MASK & GEOMETRY))
          return;
  
@@ -109,7 +109,7 @@ index 4e7fc5be..57fde17c 100644
  }
  
  void CXWM::handleConfigureNotify(xcb_configure_notify_event_t* e) {
-@@ -97,10 +99,11 @@ void CXWM::handleConfigureNotify(xcb_configure_notify_event_t* e) {
+@@ -101,10 +103,11 @@ void CXWM::handleConfigureNotify(xcb_configure_notify_event_t* e) {
      if (!XSURF)
          return;
  
@@ -123,7 +123,7 @@ index 4e7fc5be..57fde17c 100644
      updateOverrideRedirect(XSURF, e->override_redirect);
      XSURF->m_events.setGeometry.emit();
  }
-@@ -286,6 +289,17 @@ void CXWM::readProp(SP<CXWaylandSurface> XSURF, uint32_t atom, xcb_get_property_
+@@ -290,6 +293,17 @@ void CXWM::readProp(SP<CXWaylandSurface> XSURF, uint32_t atom, xcb_get_property_
          std::memset(XSURF->m_sizeHints.get(), 0, sizeof(xcb_size_hints_t));
          xcb_icccm_get_wm_size_hints_from_reply(XSURF->m_sizeHints.get(), reply);
  
@@ -141,12 +141,10 @@ index 4e7fc5be..57fde17c 100644
          const int32_t FLAGS   = XSURF->m_sizeHints->flags;
          const bool    HASMIN  = FLAGS & XCB_ICCCM_SIZE_HINT_P_MIN_SIZE;
          const bool    HASBASE = FLAGS & XCB_ICCCM_SIZE_HINT_BASE_SIZE;
-@@ -341,8 +355,21 @@ void CXWM::readProp(SP<CXWaylandSurface> XSURF, uint32_t atom, xcb_get_property_
- void CXWM::handlePropertyNotify(xcb_property_notify_event_t* e) {
+@@ -346,6 +360,18 @@ void CXWM::handlePropertyNotify(xcb_property_notify_event_t* e) {
      const auto XSURF = windowForXID(e->window);
  
--    if (!XSURF)
-+    if (!XSURF) {
+     if (!XSURF) {
 +        if (e->atom == HYPRATOMS["_XWAYLAND_GLOBAL_OUTPUT_SCALE"]) {
 +            xcb_get_property_cookie_t cookie = xcb_get_property(getConnection(), 0, e->window, e->atom, XCB_ATOM_ANY, 0, 2048);
 +            xcb_get_property_reply_t* reply  = xcb_get_property_reply(getConnection(), cookie, nullptr);
@@ -159,12 +157,10 @@ index 4e7fc5be..57fde17c 100644
 +            free(reply);
 +            PROTO::xdgOutput->updateAllOutputs();
 +        }
+         removeTransfersForWindow(e->window);
          return;
-+    }
- 
-     xcb_get_property_cookie_t             cookie = xcb_get_property(getConnection(), 0, XSURF->m_xID, e->atom, XCB_ATOM_ANY, 0, 2048);
-     XCBReplyPtr<xcb_get_property_reply_t> reply(xcb_get_property_reply(getConnection(), cookie, nullptr));
-@@ -1390,6 +1417,18 @@ SP<IDataOffer> CXWM::createX11DataOffer(SP<CWLSurfaceResource> surf, SP<IDataSou
+     }
+@@ -1414,6 +1440,18 @@ SP<IDataOffer> CXWM::createX11DataOffer(SP<CWLSurfaceResource> surf, SP<IDataSou
      return offer;
  }
  
@@ -184,10 +180,10 @@ index 4e7fc5be..57fde17c 100644
      const bool isClipboard = this == &g_pXWayland->m_wm->m_clipboard;
      const bool isPrimary   = this == &g_pXWayland->m_wm->m_primarySelection;
 diff --git a/src/xwayland/XWM.hpp b/src/xwayland/XWM.hpp
-index 1a922a45..867175bf 100644
+index af1fa06a..97cd443a 100644
 --- a/src/xwayland/XWM.hpp
 +++ b/src/xwayland/XWM.hpp
-@@ -119,6 +119,7 @@ class CXWM {
+@@ -120,6 +120,7 @@ class CXWM {
      SP<CX11DataDevice> getDataDevice();
      SP<IDataOffer>     createX11DataOffer(SP<CWLSurfaceResource> surf, SP<IDataSource> source);
      void               updateWorkArea(int x, int y, int w, int h);
@@ -195,7 +191,7 @@ index 1a922a45..867175bf 100644
  
    private:
      void                 setCursor(unsigned char* pixData, uint32_t stride, const Vector2D& size, const Vector2D& hotspot);
-@@ -180,12 +181,16 @@ class CXWM {
+@@ -183,12 +184,16 @@ class CXWM {
  
      SXSelection* getSelection(xcb_atom_t atom);
  

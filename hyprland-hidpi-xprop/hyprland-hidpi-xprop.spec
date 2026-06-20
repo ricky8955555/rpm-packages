@@ -1,5 +1,5 @@
 Name:           hyprland-hidpi-xprop
-Version:        0.54.3
+Version:        0.55.4
 Release:        %autorelease
 Summary:        Dynamic tiling Wayland compositor that doesn't sacrifice on its looks, with Hi-DPI scale patches.
 
@@ -50,6 +50,7 @@ BuildRequires:  pkgconfig(libinput)
 BuildRequires:  pkgconfig(libliftoff)
 BuildRequires:  pkgconfig(libseat)
 BuildRequires:  pkgconfig(libudev)
+BuildRequires:  pkgconfig(lua)
 BuildRequires:  pkgconfig(pango)
 BuildRequires:  pkgconfig(pangocairo)
 BuildRequires:  pkgconfig(pixman-1)
@@ -148,6 +149,7 @@ Requires:       pkgconfig(libinput)
 Requires:       pkgconfig(libliftoff)
 Requires:       pkgconfig(libseat)
 Requires:       pkgconfig(libudev)
+Requires:       pkgconfig(lua)
 Requires:       pkgconfig(re2)
 Requires:       pkgconfig(pango)
 Requires:       pkgconfig(pangocairo)

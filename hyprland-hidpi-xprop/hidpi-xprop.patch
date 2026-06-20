@@ -1,10 +1,10 @@
 diff --git a/src/desktop/view/Window.cpp b/src/desktop/view/Window.cpp
-index abf4da95..0f800cf0 100644
+index 7fb62c5a..1262b106 100644
 --- a/src/desktop/view/Window.cpp
 +++ b/src/desktop/view/Window.cpp
-@@ -1368,10 +1368,13 @@ Vector2D CWindow::xwaylandPositionToReal(Vector2D pos) {
+@@ -1527,10 +1527,13 @@ Vector2D CWindow::xwaylandPositionToReal(Vector2D pos) {
  void CWindow::updateX11SurfaceScale() {
-     static auto PXWLFORCESCALEZERO = CConfigValue<Hyprlang::INT>("xwayland:force_zero_scaling");
+     static auto PXWLFORCESCALEZERO = CConfigValue<Config::INTEGER>("xwayland:force_zero_scaling");
  
 -    m_X11SurfaceScaledBy = 1.0f;
 -    if (m_isX11 && *PXWLFORCESCALEZERO) {
@@ -21,7 +21,7 @@ index abf4da95..0f800cf0 100644
  }
  
 diff --git a/src/protocols/XDGOutput.cpp b/src/protocols/XDGOutput.cpp
-index 3553a74b..ec738da4 100644
+index c29fcdd1..f2ca7ac7 100644
 --- a/src/protocols/XDGOutput.cpp
 +++ b/src/protocols/XDGOutput.cpp
 @@ -110,11 +110,15 @@ void CXDGOutput::sendDetails() {
@@ -44,7 +44,7 @@ index 3553a74b..ec738da4 100644
          m_resource->sendLogicalSize(m_monitor->m_size.x, m_monitor->m_size.y);
  
 diff --git a/src/xwayland/XSurface.cpp b/src/xwayland/XSurface.cpp
-index 5c5f3b5c..2b32dfa1 100644
+index bb7895de..01f2ec8e 100644
 --- a/src/xwayland/XSurface.cpp
 +++ b/src/xwayland/XSurface.cpp
 @@ -200,7 +200,8 @@ void CXWaylandSurface::configure(const CBox& box) {
@@ -56,7 +56,7 @@ index 5c5f3b5c..2b32dfa1 100644
 +                         g_pXWayland->m_wm->applyScale(box.height), 0};
      xcb_configure_window(g_pXWayland->m_wm->getConnection(), m_xID, mask, values);
  
-     if (m_geometry.width == box.width && m_geometry.height == box.height) {
+     if (box.width == oldSize.x && box.height == oldSize.y) {
 @@ -209,10 +210,10 @@ void CXWaylandSurface::configure(const CBox& box) {
          e.response_type     = XCB_CONFIGURE_NOTIFY;
          e.event             = m_xID;
@@ -73,7 +73,7 @@ index 5c5f3b5c..2b32dfa1 100644
          e.above_sibling     = XCB_NONE;
          e.override_redirect = m_overrideRedirect;
 diff --git a/src/xwayland/XWM.cpp b/src/xwayland/XWM.cpp
-index 7e20d9b1..ab7e772e 100644
+index 2ffe99ed..696940d0 100644
 --- a/src/xwayland/XWM.cpp
 +++ b/src/xwayland/XWM.cpp
 @@ -19,6 +19,7 @@
